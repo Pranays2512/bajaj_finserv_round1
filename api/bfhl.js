@@ -5,7 +5,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.post('/bfhl', (req, res) => {
+app.post(['/bfhl', '/api/bfhl', '*'], (req, res) => {
   try {
     const rawPayload = req.body.data;
 
@@ -19,7 +19,6 @@ app.post('/bfhl', (req, res) => {
     const edgeRegistry = new Set();
     const distinctEdges = [];
 
-    // Phase 1: Clean and validate inputs
     rawPayload.forEach((item) => {
       if (typeof item !== 'string') {
         faultyInputs.push(String(item));
@@ -35,7 +34,6 @@ app.post('/bfhl', (req, res) => {
       }
     });
 
-    // Phase 2: Filter duplicates
     acceptableEdges.forEach((edgeStr) => {
       if (edgeRegistry.has(edgeStr)) {
         if (!repeatedEdges.includes(edgeStr)) {
@@ -47,7 +45,6 @@ app.post('/bfhl', (req, res) => {
       }
     });
 
-    // Phase 3: Construct graph structures
     const childToParentMap = {}; 
     const parentToChildrenMap = {}; 
     const uniqueNodesSet = new Set();
@@ -58,7 +55,6 @@ app.post('/bfhl', (req, res) => {
       uniqueNodesSet.add(sourceNode);
       uniqueNodesSet.add(targetNode);
 
-      // First-encountered parent edge wins
       if (childToParentMap[targetNode] === undefined) {
         childToParentMap[targetNode] = sourceNode;
         if (!parentToChildrenMap[sourceNode]) {
@@ -68,7 +64,6 @@ app.post('/bfhl', (req, res) => {
       }
     }
 
-    // Phase 4: Identify independent groups (Connected Components)
     const adjacencyList = {};
     uniqueNodesSet.forEach(node => { adjacencyList[node] = []; });
     
@@ -102,7 +97,6 @@ app.post('/bfhl', (req, res) => {
       }
     });
 
-    // Phase 5: Analyze each group for roots and cycles
     const finalHierarchies = [];
 
     const constructNestedTree = (currentNode) => {
@@ -139,7 +133,6 @@ app.post('/bfhl', (req, res) => {
       });
 
       if (groupRoots.length === 1) {
-        // Valid Tree
         const mainRoot = groupRoots[0];
         const treeWrapper = {};
         treeWrapper[mainRoot] = constructNestedTree(mainRoot);
@@ -150,7 +143,6 @@ app.post('/bfhl', (req, res) => {
           depth: determineMaxDepth(mainRoot)
         });
       } else if (groupRoots.length === 0) {
-        // Cyclic Group
         const sortedNodes = Array.from(group).sort();
         finalHierarchies.push({
           root: sortedNodes[0],
@@ -160,7 +152,6 @@ app.post('/bfhl', (req, res) => {
       }
     });
 
-    // Phase 6: Aggregate Summary
     const treeCount = finalHierarchies.filter(h => !h.has_cycle).length;
     const cycleCount = finalHierarchies.filter(h => h.has_cycle).length;
 
@@ -198,7 +189,5 @@ app.post('/bfhl', (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Export the app for Vercel serverless function
+module.exports = app;
