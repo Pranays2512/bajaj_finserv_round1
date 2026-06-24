@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chitkara Full Stack Challenge</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="glass-panel">
+    <h1>Node Hierarchy Parser</h1>
+    <p class="subtitle">Submit your directed edges to discover trees and cycles</p>
+    
+    <div class="input-group">
+      <label for="apiUrl">API Base URL</label>
+      <input type="text" id="apiUrl" value="http://localhost:3000/bfhl" placeholder="https://your-api-url.com/bfhl">
+    </div>
+
+    <div class="input-group">
+      <label for="nodeInput">Node Array (JSON)</label>
+      <textarea id="nodeInput" placeholder='["A->B", "A->C"]'>[
+  "A->B",
+  "A->C",
+  "B->D",
+  "C->E",
+  "E->F",
+  "X->Y",
+  "Y->Z",
+  "Z->X"
+]</textarea>
+    </div>
+
+    <button id="submitBtn" class="submit-btn">Process Nodes</button>
+
+    <div id="errorBox" class="error-message" style="display: none;"></div>
+
+    <div id="resultsContainer" class="results-container" style="display: none;">
+      <!-- Results populated via JS -->
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
