@@ -1,13 +1,23 @@
-const express = require('express');
-const cors = require('cors');
+module.exports = (req, res) => {
+  // CORS Headers for Vercel
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
-app.post(['/bfhl', '/api/bfhl', '*'], (req, res) => {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   try {
-    const rawPayload = req.body.data;
+    const rawPayload = req.body && req.body.data;
 
     if (!rawPayload || !Array.isArray(rawPayload)) {
       return res.status(400).json({ error: "Invalid data format. Expected an array in 'data' field." });
@@ -171,7 +181,7 @@ app.post(['/bfhl', '/api/bfhl', '*'], (req, res) => {
       }
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       user_id: "pranay_25122005",
       email_id: "pranay2416.be23@chitkara.edu.in",
       college_roll_number: "2310992416",
@@ -185,9 +195,6 @@ app.post(['/bfhl', '/api/bfhl', '*'], (req, res) => {
       }
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
-});
-
-// Export the app for Vercel serverless function
-module.exports = app;
+};
